@@ -20,6 +20,7 @@ func main() {
 	e.POST("/signin", handler.SignIn)
 
 	// Authenticated Routes
+	e.POST("/authenticated", handler.Authenticated, middleware.AuthMiddleware())
 	e.POST("/signout", handler.SignOut, middleware.AuthMiddleware())
 
 	// Start server
