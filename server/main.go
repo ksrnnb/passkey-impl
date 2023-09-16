@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/ksrnnb/passkey-impl/handler"
 	"github.com/ksrnnb/passkey-impl/middleware"
 	"github.com/labstack/echo/v4"
@@ -17,18 +15,13 @@ func main() {
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.Recover())
 	e.Use(middleware.RepositoryMiddleware())
-	e.Use(middleware.AuthMiddleware())
 
-	// Routes
+	// Unauthenticated Routes
 	e.POST("/signin", handler.SignIn)
-	e.POST("/signout", hello)
-	e.GET("/", hello)
+
+	// Authenticated Routes
+	e.POST("/signout", handler.SignOut, middleware.AuthMiddleware())
 
 	// Start server
 	e.Logger.Fatal(e.Start(":8888"))
-}
-
-// Handler
-func hello(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
 }
