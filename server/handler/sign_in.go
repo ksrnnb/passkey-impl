@@ -15,7 +15,7 @@ type signInInput struct {
 }
 
 type signInResponse struct {
-	Jwt string
+	Token string `json:"token"`
 }
 
 func SignIn(c echo.Context) error {
@@ -46,7 +46,7 @@ func SignIn(c echo.Context) error {
 	}
 
 	res := signInResponse{
-		Jwt: token,
+		Token: token,
 	}
 	return c.JSON(http.StatusOK, res)
 }

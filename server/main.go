@@ -14,6 +14,7 @@ func main() {
 	// Middleware
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.Recover())
+	e.Use(echoMiddleware.CORS())
 	e.Use(middleware.RepositoryMiddleware())
 
 	// Unauthenticated Routes
