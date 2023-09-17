@@ -2,26 +2,37 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-// TODO remove, this demo shouldn't need to reset the theme.
+import * as client from "../httpClient/client";
+import authContext from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 const defaultTheme = createTheme();
 
+type SignInResponse = {
+  token: string;
+};
+
 export default function SignIn() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const { setToken } = React.useContext(authContext);
+  const navigate = useNavigate();
+
+  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const userId = data.get('userId');
+    const password = data.get('password');
+
+    const res = await client.post("/signin", {userId, password});
+    const signInResponse: SignInResponse = await res.json();
+
+    setToken(signInResponse.token);
+
+    navigate("/");
   };
 
   return (
@@ -39,15 +50,16 @@ export default function SignIn() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSignIn} noValidate sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="userId"
+              label="User Id"
+              name="userId"
+              autoComplete="userId"
+              defaultValue="sample"
               autoFocus
             />
             <TextField
@@ -60,10 +72,6 @@ export default function SignIn() {
               id="password"
               autoComplete="current-password"
             />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
             <Button
               type="submit"
               fullWidth
@@ -72,13 +80,13 @@ export default function SignIn() {
             >
               Sign In
             </Button>
-            <Grid container>
+            {/* <Grid container>
               <Grid item>
                 <Link href="/signup" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>
-            </Grid>
+            </Grid> */}
           </Box>
         </Box>
       </Container>
