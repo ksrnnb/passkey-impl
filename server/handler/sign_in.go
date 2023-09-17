@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type signInInput struct {
+type signInRequest struct {
 	UserId   string
 	Password string
 }
@@ -24,13 +24,13 @@ func SignIn(c echo.Context) error {
 		return ErrorJSON(c, http.StatusInternalServerError, "unexpected error")
 	}
 
-	var input signInInput
-	err := json.NewDecoder(c.Request().Body).Decode(&input)
+	var req signInRequest
+	err := json.NewDecoder(c.Request().Body).Decode(&req)
 	if err != nil {
-		return ErrorJSON(c, http.StatusBadRequest, "invalid input")
+		return ErrorJSON(c, http.StatusBadRequest, "invalid request")
 	}
 
-	user, err := repo.UserRepository.FindById(input.UserId)
+	user, err := repo.UserRepository.FindById(req.UserId)
 	if err != nil {
 		return ErrorJSON(c, http.StatusBadRequest, "user not found")
 	}

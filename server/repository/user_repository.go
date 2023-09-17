@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"errors"
-
 	"github.com/ksrnnb/passkey-impl/model"
 )
 
@@ -28,5 +26,5 @@ func (r *UserRepository) FindById(id string) (*model.User, error) {
 			return u, nil
 		}
 	}
-	return nil, errors.New("user not found")
+	return nil, ErrRecordNotFound
 }
