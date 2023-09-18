@@ -9,7 +9,9 @@ type KVS struct {
 var kvs KVS
 
 func init() {
-	kvs = KVS{}
+	kvs = KVS{
+		store: map[string]string{},
+	}
 }
 
 func Add(key string, value string) {

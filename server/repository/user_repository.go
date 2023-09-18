@@ -30,3 +30,14 @@ func (r *UserRepository) FindById(id string) (*model.User, error) {
 	}
 	return nil, ErrRecordNotFound
 }
+
+// Add updates user if it exists or creates user if not exists
+func (r *UserRepository) Add(user *model.User) {
+	for i, u := range r.users {
+		if u.Id == user.Id {
+			r.users[i] = user
+			return
+		}
+	}
+	r.users = append(r.users, user)
+}

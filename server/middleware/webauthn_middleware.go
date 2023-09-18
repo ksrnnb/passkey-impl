@@ -8,13 +8,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const RPOrigin = "http://localhost:3000"
+
 func WebAuthnMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			wconfig := &webauthn.Config{
-				RPDisplayName: "passkey-impl",                    // Display Name for your site
-				RPID:          "localhost:8888",                  // Generally the FQDN for your site
-				RPOrigins:     []string{"http://localhost:8888"}, // The origin URLs allowed for WebAuthn requests
+				RPDisplayName: "passkey-impl",     // Display Name for your site
+				RPID:          "localhost",        // Generally the FQDN for your site
+				RPOrigins:     []string{RPOrigin}, // The origin URLs allowed for WebAuthn requests
 			}
 
 			w, err := webauthn.New(wconfig)
