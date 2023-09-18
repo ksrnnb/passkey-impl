@@ -34,3 +34,15 @@ func (r *CredentialRepository) Add(cred *model.Credential) {
 	}
 	r.creds = append(r.creds, cred)
 }
+
+// Delete deletes credential
+func (r *CredentialRepository) Delete(credId string) {
+	for i, c := range r.creds {
+		if c.Id == credId {
+			// order is not important
+			r.creds[i] = r.creds[len(r.creds)-1]
+			r.creds = r.creds[:len(r.creds)-1]
+			return
+		}
+	}
+}

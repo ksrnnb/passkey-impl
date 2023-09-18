@@ -9,6 +9,7 @@ import (
 )
 
 type PasskeyCredential struct {
+	Id   string `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -29,6 +30,7 @@ func AuthenticatedUser(c echo.Context) error {
 	creds := make([]PasskeyCredential, len(user.Credentials))
 	for i, cred := range user.Credentials {
 		creds[i] = PasskeyCredential{
+			Id:   cred.Id,
 			Name: cred.Name,
 		}
 	}

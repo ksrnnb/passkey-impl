@@ -58,5 +58,5 @@ func RegisterPasskey(c echo.Context) error {
 	credRepo := repository.Repos.CredentialRepository
 	credRepo.Add(cred)
 
-	return c.JSON(http.StatusOK, nil)
+	return c.JSON(http.StatusCreated, nil)
 }

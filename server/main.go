@@ -25,6 +25,7 @@ func main() {
 	e.POST("/signout", handler.SignOut, middleware.AuthMiddleware())
 	e.POST("/passkey/register/start", handler.StartRegistration, middleware.AuthMiddleware())
 	e.POST("/passkey/register", handler.RegisterPasskey, middleware.AuthMiddleware())
+	e.DELETE("/passkey/:id", handler.DeletePasskey, middleware.AuthMiddleware())
 
 	// Start server
 	e.Logger.Fatal(e.Start(":8888"))
