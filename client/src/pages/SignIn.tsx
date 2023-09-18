@@ -27,7 +27,7 @@ export default function SignIn() {
     const userId = data.get('userId');
     const password = data.get('password');
 
-    const res = await client.post("/signin", {userId, password});
+    const res = await client.Post("/signin", {userId, password});
     const signInResponse: SignInResponse = await res.json();
 
     setToken(signInResponse.token);

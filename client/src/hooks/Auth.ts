@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as client from "../httpClient/client";
 
 type Credential = {
+  id: string;
   name: string;
 };
 
@@ -25,7 +26,7 @@ export function useAuth() {
   const updateUser = useCallback(() => {
     if (storedToken) {
       setIsLoading(true);
-      client.post("/authenticated")
+      client.Post("/authenticated")
       .then(res => res.json())
       .then((res: AuthenticatedResponse) => {
           setToken(storedToken);

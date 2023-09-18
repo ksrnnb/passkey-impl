@@ -26,7 +26,6 @@ function toArrayBuffer(str: string) {
   return bin.buffer;
 }
 
-
 type PubKeyCredParam = {
   type: "public-key",
   alg: number,
@@ -64,11 +63,11 @@ type RegisterPasskeyRequest = {
   },
 }
 
-export default function StickyFooter() {
+export default function Home() {
   const { user, updateUser, unsetToken } = useAuth();
 
   const  handleSignOut = async () => {
-    await client.post("/signout");
+    await client.Post("/signout");
     unsetToken();
 
     // TODO: investigate why navigate cannot work well
@@ -78,8 +77,7 @@ export default function StickyFooter() {
   };
 
   const handleRegisterPasskey = async () => {
-    const res: StartRegistrationResponse = await client.post("/passkey/register/start").then(res => res.json());
-    console.log("challenge:", res.publicKey.challenge)
+    const res: StartRegistrationResponse = await client.Post("/passkey/register/start").then(res => res.json());
 
     const options: CredentialCreationOptions = {
       publicKey: {
@@ -122,11 +120,15 @@ export default function StickyFooter() {
       },
     }
     
-    const registerRes = await client.post("/passkey/register", req).then(res => res.json());
+    await client.Post("/passkey/register", req).then(res => res.json());
 
-    console.log(registerRes);
     updateUser();
   }
+
+  const handleDeleteCredential = async (credentialId: string) => {
+    await client.Delete(`/passkey/${credentialId}`);
+    updateUser();
+  };
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -146,7 +148,7 @@ export default function StickyFooter() {
             Passkey setting
           </Typography>
           <Box mb={5} pb={5}>
-            {user ? <Credentials user={user}/> : <></>}
+            {user ? <Credentials user={user} deleteCredential={handleDeleteCredential}/> : <></>}
             {user?.credentials.length === 0 && (
               <Button variant="contained" onClick={handleRegisterPasskey}>
                 Register passkey

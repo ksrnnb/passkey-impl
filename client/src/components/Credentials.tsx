@@ -4,13 +4,15 @@ import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Typography from "@mui/material/Typography";
 import { User } from "../hooks/Auth";
+import { CredentialDeleteIcon, CredentialDeleteIconProps } from './CredentialDeleteIcon';
 
 type CredentialsProps = {
   user: User;
+  deleteCredential: CredentialDeleteIconProps["deleteCredential"];
 };
 
 export const Credentials = (props: CredentialsProps) => {
-  const { user } = props;
+  const { user, deleteCredential } = props;
 
   if (user.credentials.length === 0) {
     return (
@@ -26,7 +28,7 @@ export const Credentials = (props: CredentialsProps) => {
       </Typography>
       <List>
         {user.credentials.map((cred) => (
-          <ListItem key={cred.name}>
+          <ListItem key={cred.id} secondaryAction={<CredentialDeleteIcon credentialId={cred.id} deleteCredential={deleteCredential}/>}>
             <ListItemIcon>
               <KeyIcon />
             </ListItemIcon>
