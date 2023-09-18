@@ -1,12 +1,13 @@
 import { createContext } from "react"
+import { User } from "../hooks/Auth";
 
 interface AuthContext {
-  token: string | null;
+  user: User | null;
   setToken: (token: string) => void;
 }
 
 const authContext = createContext<AuthContext>({
-  token: null,
+  user: null,
   setToken: (token: string) => {},
 });
 

@@ -6,10 +6,14 @@ import { useAuth } from './hooks/Auth';
 import AuthContext from './context/AuthContext';
 
 function App() {
-  const {token, setToken} = useAuth();
+  const {isLoading, token, setToken, user} = useAuth();
+
+  if (isLoading) {
+    return <></>;
+  }
 
   return (
-    <AuthContext.Provider value={{token, setToken}}>
+    <AuthContext.Provider value={{user, setToken}}>
       <BrowserRouter>
         <Routes>
           {token ?
