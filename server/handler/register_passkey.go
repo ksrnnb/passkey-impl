@@ -8,6 +8,7 @@ import (
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/ksrnnb/passkey-impl/kvs"
+	"github.com/ksrnnb/passkey-impl/model"
 	"github.com/ksrnnb/passkey-impl/repository"
 	"github.com/labstack/echo/v4"
 )
@@ -47,13 +48,13 @@ func RegisterPasskey(c echo.Context) error {
 	}
 
 	// update credential
-	user.Credentials = append(user.Credentials, *credential)
-	repo, ok := c.Get(repository.RepositoriesContextName).(repository.Repositories)
-	if !ok {
-		return ErrorJSON(c, http.StatusInternalServerError, "unexpected error")
-	}
+	user.Credentials = append(user.Credentials, model.Credential{
+		Credential: *credential,
+		Name:       c.Request().UserAgent(),
+	})
 
-	repo.Add(user)
+	userRepo := repository.Repos.UserRepository
+	userRepo.Add(user)
 
-	return c.JSON(http.StatusOK, nil)
+	return c.JSON(http.StatusOK, credential)
 }

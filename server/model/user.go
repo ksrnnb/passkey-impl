@@ -6,7 +6,7 @@ type User struct {
 	Id          string
 	Name        string
 	Password    string
-	Credentials []webauthn.Credential
+	Credentials []Credential
 }
 
 func (u *User) WebAuthnID() []byte {
@@ -26,5 +26,9 @@ func (u *User) WebAuthnIcon() string {
 }
 
 func (u *User) WebAuthnCredentials() []webauthn.Credential {
-	return u.Credentials
+	creds := make([]webauthn.Credential, len(u.Credentials))
+	for i, cred := range u.Credentials {
+		creds[i] = cred.Credential
+	}
+	return creds
 }

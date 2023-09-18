@@ -15,14 +15,13 @@ func main() {
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.Recover())
 	e.Use(echoMiddleware.CORS())
-	e.Use(middleware.RepositoryMiddleware())
 	e.Use(middleware.WebAuthnMiddleware())
 
 	// Unauthenticated Routes
 	e.POST("/signin", handler.SignIn)
 
 	// Authenticated Routes
-	e.POST("/authenticated", handler.Authenticated, middleware.AuthMiddleware())
+	e.POST("/authenticated", handler.AuthenticatedUser, middleware.AuthMiddleware())
 	e.POST("/signout", handler.SignOut, middleware.AuthMiddleware())
 	e.POST("/passkey/register/start", handler.StartRegistration, middleware.AuthMiddleware())
 	e.POST("/passkey/register", handler.RegisterPasskey, middleware.AuthMiddleware())

@@ -26,10 +26,6 @@ func CurrentUser(c echo.Context) (*model.User, error) {
 		return nil, errors.New("cannot get user id from context")
 	}
 
-	repo, ok := c.Get(repository.RepositoriesContextName).(repository.Repositories)
-	if !ok {
-		return nil, errors.New("repository middleware error")
-	}
-
-	return repo.UserRepository.FindById(userId)
+	userRepo := repository.Repos.UserRepository
+	return userRepo.FindById(userId)
 }

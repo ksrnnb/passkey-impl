@@ -19,18 +19,14 @@ type signInResponse struct {
 }
 
 func SignIn(c echo.Context) error {
-	repo, ok := c.Get(repository.RepositoriesContextName).(repository.Repositories)
-	if !ok {
-		return ErrorJSON(c, http.StatusInternalServerError, "unexpected error")
-	}
-
 	var req signInRequest
 	err := json.NewDecoder(c.Request().Body).Decode(&req)
 	if err != nil {
 		return ErrorJSON(c, http.StatusBadRequest, "invalid request")
 	}
 
-	user, err := repo.UserRepository.FindById(req.UserId)
+	userRepo := repository.Repos.UserRepository
+	user, err := userRepo.FindById(req.UserId)
 	if err != nil {
 		return ErrorJSON(c, http.StatusBadRequest, "user not found")
 	}
