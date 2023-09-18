@@ -26,7 +26,7 @@ type ChallengeRegistrationResponse struct {
 	Challenge string `json:"challenge"`
 }
 
-func ChallengeRegistration(c echo.Context) error {
+func StartRegistration(c echo.Context) error {
 	user, err := CurrentUser(c)
 
 	if err != nil {

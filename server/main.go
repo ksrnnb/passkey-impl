@@ -24,7 +24,7 @@ func main() {
 	// Authenticated Routes
 	e.POST("/authenticated", handler.Authenticated, middleware.AuthMiddleware())
 	e.POST("/signout", handler.SignOut, middleware.AuthMiddleware())
-	e.POST("/passkey/register/challenge", handler.ChallengeRegistration, middleware.AuthMiddleware())
+	e.POST("/passkey/register/start", handler.StartRegistration, middleware.AuthMiddleware())
 	e.POST("/passkey/register", handler.RegisterPasskey, middleware.AuthMiddleware())
 
 	// Start server
