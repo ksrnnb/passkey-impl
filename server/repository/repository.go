@@ -8,5 +8,4 @@ var ErrRecordNotFound = errors.New("record not found")
 
 type Repositories struct {
 	*UserRepository
-	*PasskeyRepository
 }

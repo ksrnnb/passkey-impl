@@ -16,6 +16,7 @@ func main() {
 	e.Use(echoMiddleware.Recover())
 	e.Use(echoMiddleware.CORS())
 	e.Use(middleware.RepositoryMiddleware())
+	e.Use(middleware.WebAuthnMiddleware())
 
 	// Unauthenticated Routes
 	e.POST("/signin", handler.SignIn)

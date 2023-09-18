@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/ksrnnb/passkey-impl/model"
 )
 
@@ -12,9 +13,10 @@ func NewUserRepository() *UserRepository {
 	return &UserRepository{
 		users: []*model.User{
 			{
-				Id:       "sample",
-				Name:     "sample user",
-				Password: "password",
+				Id:          "sample",
+				Name:        "sample user",
+				Password:    "password",
+				Credentials: []webauthn.Credential{},
 			},
 		},
 	}

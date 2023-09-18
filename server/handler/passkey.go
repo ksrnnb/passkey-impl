@@ -1,27 +1,21 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
-	"math/rand"
 	"net/http"
 
-	"github.com/ksrnnb/passkey-impl/jwt"
+	"github.com/go-webauthn/webauthn/webauthn"
+	"github.com/ksrnnb/passkey-impl/repository"
 	"github.com/labstack/echo/v4"
 )
 
+// NOTE:
+const RelyingPartyName = "passkey-impl"
+const RelyingPartyID = "localhost:8888"
+const WebAuthnContextKeyName = "webauthn"
+
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func generateRandomString(stringLength int) string {
-	b := make([]rune, stringLength)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	return string(b)
-}
-
-func generateChallenge() string {
-	return generateRandomString(32)
-}
 
 func challengeKvsKey(userId string) string {
 	return fmt.Sprintf("user:%s:challenge", userId)
@@ -33,19 +27,27 @@ type ChallengeRegistrationResponse struct {
 }
 
 func ChallengeRegistration(c echo.Context) error {
-	userId, ok := c.Get(jwt.UserIdKey).(string)
+	user, err := CurrentUser(c)
+
+	if err != nil {
+		if errors.Is(err, repository.ErrRecordNotFound) {
+			return ErrorJSON(c, http.StatusBadRequest, "user not found")
+		}
+		return ErrorJSON(c, http.StatusInternalServerError, err.Error())
+	}
+
+	w, ok := c.Get(WebAuthnContextKeyName).(*webauthn.WebAuthn)
 	if !ok {
 		return ErrorJSON(c, http.StatusInternalServerError, "unexpected error")
 	}
-	// repo, ok := c.Get(repository.RepositoriesContextName).(repository.Repositories)
-	// if !ok {
-	// 	return ErrorJSON(c, http.StatusInternalServerError, "unexpected error")
-	// }
-	res := ChallengeRegistrationResponse{
-		UserId:    userId,
-		Challenge: generateChallenge(),
+
+	options, _, err := w.BeginRegistration(user)
+	if err != nil {
+		fmt.Println(err)
+		return ErrorJSON(c, http.StatusInternalServerError, "unexpected error")
 	}
-	return c.JSON(http.StatusOK, res)
+
+	return c.JSON(http.StatusOK, options)
 }
 
 // TODO: implement
