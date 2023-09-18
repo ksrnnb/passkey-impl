@@ -12,22 +12,27 @@ func NewUserRepository() *UserRepository {
 	return &UserRepository{
 		users: []*model.User{
 			{
-				Id:          "sample",
-				Name:        "sample user",
-				Password:    "password",
-				Credentials: []model.Credential{},
+				Id:       "sample",
+				Name:     "sample user",
+				Password: "password",
 			},
 		},
 	}
 }
 
 func (r *UserRepository) FindById(id string) (*model.User, error) {
+	var user *model.User
 	for _, u := range r.users {
 		if u.Id == id {
-			return u, nil
+			user = u
+			break
 		}
 	}
-	return nil, ErrRecordNotFound
+	if user == nil {
+		return nil, ErrRecordNotFound
+	}
+	user.Credentials = Repos.CredentialRepository.FindByUserId(user.Id)
+	return user, nil
 }
 
 // Add updates user if it exists or creates user if not exists

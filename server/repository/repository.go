@@ -10,10 +10,12 @@ var Repos Repositories
 
 func init() {
 	Repos = Repositories{
-		UserRepository: NewUserRepository(),
+		UserRepository:       NewUserRepository(),
+		CredentialRepository: NewCredentialRepository(),
 	}
 }
 
 type Repositories struct {
 	*UserRepository
+	*CredentialRepository
 }

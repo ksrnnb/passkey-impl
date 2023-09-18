@@ -6,7 +6,7 @@ type User struct {
 	Id          string
 	Name        string
 	Password    string
-	Credentials []Credential
+	Credentials []*Credential
 }
 
 func (u *User) WebAuthnID() []byte {

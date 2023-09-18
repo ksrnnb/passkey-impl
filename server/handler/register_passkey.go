@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
+	"github.com/google/uuid"
 	"github.com/ksrnnb/passkey-impl/kvs"
 	"github.com/ksrnnb/passkey-impl/model"
 	"github.com/ksrnnb/passkey-impl/repository"
@@ -48,13 +49,14 @@ func RegisterPasskey(c echo.Context) error {
 	}
 
 	// update credential
-	user.Credentials = append(user.Credentials, model.Credential{
+	cred := &model.Credential{
 		Credential: *credential,
+		Id:         uuid.New().String(),
+		UserId:     user.Id,
 		Name:       c.Request().UserAgent(),
-	})
+	}
+	credRepo := repository.Repos.CredentialRepository
+	credRepo.Add(cred)
 
-	userRepo := repository.Repos.UserRepository
-	userRepo.Add(user)
-
-	return c.JSON(http.StatusOK, credential)
+	return c.JSON(http.StatusOK, nil)
 }
