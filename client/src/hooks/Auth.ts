@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as client from "../httpClient/client";
 
 export function useAuth() {
@@ -6,10 +6,12 @@ export function useAuth() {
 
   const localStorageToken = localStorage.getItem(client.AUTHENTICATION_TOKEN_KEY);
 
-  if (localStorageToken) {
-    client.post("/authenticated")
-      .then(_ => setToken(localStorageToken));
-  }
+  useEffect(() => {
+    if (localStorageToken) {
+      client.post("/authenticated")
+        .then(_ => setToken(localStorageToken));
+    }
+  }, [localStorageToken]);
 
   return {
     token: token,

@@ -8,7 +8,6 @@ import AuthContext from './context/AuthContext';
 function App() {
   const {token, setToken} = useAuth();
 
-  console.log(token);
   return (
     <AuthContext.Provider value={{token, setToken}}>
       <BrowserRouter>
