@@ -1,4 +1,5 @@
 import KeyIcon from '@mui/icons-material/Key';
+import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -22,7 +23,7 @@ export const Credentials = (props: CredentialsProps) => {
     );
   }
   return (
-    <>
+    <Box mb={5}>
       <Typography mb={4} variant="h4" component="h3" gutterBottom>
           Registered passkeys
       </Typography>
@@ -36,6 +37,6 @@ export const Credentials = (props: CredentialsProps) => {
           </ListItem>
         ))}
       </List>
-    </>
+    </Box>
   );
 };

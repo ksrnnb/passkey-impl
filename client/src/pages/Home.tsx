@@ -17,24 +17,33 @@ type PubKeyCredParam = {
   alg: number,
 };
 
+type Transport = "ble" | "hybrid" | "internal" | "nfc" | "usb";
+
+type ExcludeCredential = {
+  id: string;
+  transports: Transport[];
+  type: "public-key";
+}
+
 type StartRegistrationResponse = {
   publicKey: {
     rp: {
-      id: string,
-      name: string,
+      id: string;
+      name: string;
     },
     user: {
-      id: string,
-      name: string,
-      displayName: string,
+      id: string;
+      name: string;
+      displayName: string;
     },
-    pubKeyCredParams: PubKeyCredParam[],
-    challenge: string,
+    pubKeyCredParams: PubKeyCredParam[];
+    challenge: string;
     authenticatorSelection: {
-      requireResidentKey: boolean,
+      requireResidentKey: boolean;
       userVerification: "required" | "preferrer" | "discouraged";
     },
-    timeout: number,
+    timeout: number;
+    excludeCredentials?: ExcludeCredential[];
   },
 }
 
@@ -70,6 +79,13 @@ export default function Home() {
   const handleRegisterPasskey = async () => {
     const res: StartRegistrationResponse = await client.Post("/passkey/register/start").then(res => res.json());
 
+    const excludeCredentials = res.publicKey.excludeCredentials?.map(cred => {
+      return {
+        ...cred,
+        id: toArrayBuffer(cred.id),
+      }
+    });
+
     const options: CredentialCreationOptions = {
       publicKey: {
         challenge: toArrayBuffer(res.publicKey.challenge),
@@ -86,6 +102,7 @@ export default function Home() {
         },
         pubKeyCredParams: res.publicKey.pubKeyCredParams,
         timeout: res.publicKey.timeout,
+        excludeCredentials,
       },
     };
 
@@ -142,11 +159,9 @@ export default function Home() {
           </Typography>
           <Box mb={5} pb={5}>
             <Credentials user={user} deleteCredential={handleDeleteCredential}/>
-            {user.credentials.length === 0 && (
-              <Button variant="contained" onClick={handleRegisterPasskey}>
-                Register passkey
-              </Button>
-            )}
+            <Button variant="contained" onClick={handleRegisterPasskey}>
+              Register passkey
+            </Button>
           </Box>
           <Box>
             <Button variant="outlined" color="secondary" onClick={handleSignOut}>

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/ksrnnb/passkey-impl/kvs"
 	"github.com/ksrnnb/passkey-impl/repository"
@@ -29,17 +30,22 @@ func StartRegistration(c echo.Context) error {
 		return ErrorJSON(c, http.StatusInternalServerError, err.Error())
 	}
 
-	// TODO: add exclusions
-	// credRepo := repository.Repos.CredentialRepository
-	// creds := credRepo.FindByUserId(user.Id)
-	// webauthn.WithExclusions(creds)
+	credRepo := repository.Repos.CredentialRepository
+	creds := credRepo.FindByUserId(user.Id)
+
+	descriptors := make([]protocol.CredentialDescriptor, len(creds))
+	for i, cred := range creds {
+		descriptors[i] = cred.Descriptor()
+	}
+
+	exclusionsOption := webauthn.WithExclusions(descriptors)
 
 	w, ok := c.Get(WebAuthnContextKeyName).(*webauthn.WebAuthn)
 	if !ok {
 		return ErrorJSON(c, http.StatusInternalServerError, "unexpected error")
 	}
 
-	options, session, err := w.BeginRegistration(user)
+	options, session, err := w.BeginRegistration(user, exclusionsOption)
 	if err != nil {
 		fmt.Println(err)
 		return ErrorJSON(c, http.StatusInternalServerError, "unexpected error")
