@@ -1,7 +1,7 @@
 # passkey-impl
 This repository is a sample implementation of passkey using React and Golang. A server side uses [go-webauthn/webauthn](https://github.com/go-webauthn/webauthn).
 
-<video src="https://github.com/ksrnnb/passkey-impl/assets/48155865/76758daa-755a-4db9-b3c3-9f77cd4789c2"></video>
+![](assets/demo.gif)
 
 # How to set up
 ## set up server side
