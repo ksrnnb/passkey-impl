@@ -14,6 +14,15 @@ func NewCredentialRepository() *CredentialRepository {
 	}
 }
 
+func (r *CredentialRepository) FindById(credId string) (*model.Credential, error) {
+	for _, c := range r.creds {
+		if c.Id() == credId {
+			return c, nil
+		}
+	}
+	return nil, ErrRecordNotFound
+}
+
 func (r *CredentialRepository) FindByUserId(userId string) []*model.Credential {
 	var creds []*model.Credential
 	for _, c := range r.creds {
@@ -27,7 +36,7 @@ func (r *CredentialRepository) FindByUserId(userId string) []*model.Credential {
 // Add updates credential if it exists or creates credential if not exists
 func (r *CredentialRepository) Add(cred *model.Credential) {
 	for i, c := range r.creds {
-		if c.Id == cred.Id {
+		if c.Id() == cred.Id() {
 			r.creds[i] = cred
 			return
 		}
@@ -38,7 +47,7 @@ func (r *CredentialRepository) Add(cred *model.Credential) {
 // Delete deletes credential
 func (r *CredentialRepository) Delete(credId string) {
 	for i, c := range r.creds {
-		if c.Id == credId {
+		if c.Id() == credId {
 			// order is not important
 			r.creds[i] = r.creds[len(r.creds)-1]
 			r.creds = r.creds[:len(r.creds)-1]

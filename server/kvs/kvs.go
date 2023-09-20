@@ -25,3 +25,7 @@ func Get(key string) (string, error) {
 	}
 	return v, nil
 }
+
+func Delete(key string) {
+	delete(kvs.store, key)
+}

@@ -16,13 +16,8 @@ const WebAuthnContextKeyName = "webauthn"
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func sessionKvsKey(userId string) string {
-	return fmt.Sprintf("user:%s:session", userId)
-}
-
-type ChallengeRegistrationResponse struct {
-	UserId    string `json:"userId"`
-	Challenge string `json:"challenge"`
+func sessionKvsKey(challenge string) string {
+	return fmt.Sprintf("challenge:%s", challenge)
 }
 
 func StartRegistration(c echo.Context) error {
@@ -33,6 +28,11 @@ func StartRegistration(c echo.Context) error {
 		}
 		return ErrorJSON(c, http.StatusInternalServerError, err.Error())
 	}
+
+	// TODO: add exclusions
+	// credRepo := repository.Repos.CredentialRepository
+	// creds := credRepo.FindByUserId(user.Id)
+	// webauthn.WithExclusions(creds)
 
 	w, ok := c.Get(WebAuthnContextKeyName).(*webauthn.WebAuthn)
 	if !ok {
@@ -51,7 +51,7 @@ func StartRegistration(c echo.Context) error {
 	}
 
 	// store webauthn session to kvs
-	kvs.Add(sessionKvsKey(user.Id), string(s))
+	kvs.Add(sessionKvsKey(session.Challenge), string(s))
 
 	return c.JSON(http.StatusOK, options)
 }

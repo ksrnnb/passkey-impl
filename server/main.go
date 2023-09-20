@@ -19,6 +19,8 @@ func main() {
 
 	// Unauthenticated Routes
 	e.POST("/signin", handler.SignIn)
+	e.POST("/signin/passkey/start", handler.StartSignInPasskey)
+	e.POST("/signin/passkey", handler.SignInPasskey)
 
 	// Authenticated Routes
 	e.POST("/authenticated", handler.AuthenticatedUser, middleware.AuthMiddleware())

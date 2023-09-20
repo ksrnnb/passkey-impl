@@ -30,7 +30,7 @@ func AuthenticatedUser(c echo.Context) error {
 	creds := make([]PasskeyCredential, len(user.Credentials))
 	for i, cred := range user.Credentials {
 		creds[i] = PasskeyCredential{
-			Id:   cred.Id,
+			Id:   cred.Id(),
 			Name: cred.Name,
 		}
 	}
