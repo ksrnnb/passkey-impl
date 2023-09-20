@@ -8,23 +8,9 @@ import Button from '@mui/material/Button';
 import * as client from "../httpClient/client";
 import { useAuth } from '../hooks/Auth';
 import { Credentials } from '../components/Credentials';
+import { toArrayBuffer, toBase64Url } from '../utils/array_buffer';
 
 const defaultTheme = createTheme();
-
-function toBase64Url(buffer: ArrayBuffer) {
-  const base64 = window.btoa(String.fromCharCode(...new Uint8Array(buffer)));
-  return base64.replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-}
-
-function toArrayBuffer(str: string) {
-  const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
-  const binStr = window.atob(base64);
-  const bin = new Uint8Array(binStr.length);
-  for (let i = 0; i < binStr.length; i++) {
-    bin[i] = binStr.charCodeAt(i);
-  }
-  return bin.buffer;
-}
 
 type PubKeyCredParam = {
   type: "public-key",
@@ -53,18 +39,23 @@ type StartRegistrationResponse = {
 }
 
 type RegisterPasskeyRequest = {
-  id: string,
-  type: string,
-  authenticatorAttachment: string,
+  id: string;
+  rawId: string;
+  type: string;
+  authenticatorAttachment: string;
   response: {
-    clientDataJSON: string,
-    attestationObject: string,
-    transports: string[],
+    clientDataJSON: string;
+    attestationObject: string;
+    transports: string[];
   },
 }
 
 export default function Home() {
   const { user, updateUser, unsetToken } = useAuth();
+
+  if (!user) {
+    return <></>;
+  }
 
   const  handleSignOut = async () => {
     await client.Post("/signout");
@@ -111,6 +102,7 @@ export default function Home() {
     const response = pubKeyCred.response as AuthenticatorAttestationResponse;
     const req: RegisterPasskeyRequest = {
       id: pubKeyCred.id,
+      rawId: pubKeyCred.id,
       type: pubKeyCred.type,
       authenticatorAttachment: pubKeyCred.authenticatorAttachment ?? "",
       response: {
@@ -148,8 +140,8 @@ export default function Home() {
             Passkey setting
           </Typography>
           <Box mb={5} pb={5}>
-            {user ? <Credentials user={user} deleteCredential={handleDeleteCredential}/> : <></>}
-            {user?.credentials.length === 0 && (
+            <Credentials user={user} deleteCredential={handleDeleteCredential}/>
+            {user.credentials.length === 0 && (
               <Button variant="contained" onClick={handleRegisterPasskey}>
                 Register passkey
               </Button>

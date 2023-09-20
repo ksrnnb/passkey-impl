@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -7,14 +8,59 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import * as client from "../httpClient/client";
 import authContext from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import * as client from "../httpClient/client";
+import { toArrayBuffer, toBase64Url } from '../utils/array_buffer';
 
 const defaultTheme = createTheme();
 
 type SignInResponse = {
   token: string;
+};
+
+type StartSingInWithPasskeyResponse = {
+  publicKey: {
+    challenge: string;
+    rpId: string;
+    timeout: number;
+    userVerification: "discouraged" | "preferred" | "required";
+  }
+};
+
+type SignInWithPasskeyRequest = {
+  id: string;
+  rawId: string;
+  type: string;
+  authenticatorAttachment: string;
+  response: {
+    clientDataJSON: string;
+    authenticatorData: string;
+    signature: string;
+    userHandle: string;
+  },
+};
+
+type SignInWithPasskeyResponse = {
+  token: string;
+}
+
+const credentialToSignInWithPasskeyRequest = (cred: Credential): SignInWithPasskeyRequest => {
+  const pubKeyCred = cred as PublicKeyCredential;
+  const aar = pubKeyCred.response as AuthenticatorAssertionResponse;
+  const req: SignInWithPasskeyRequest = {
+    id: pubKeyCred.id,
+    rawId: pubKeyCred.id,
+    authenticatorAttachment: pubKeyCred.authenticatorAttachment ?? "",
+    response: {
+      authenticatorData: toBase64Url(aar.authenticatorData),
+      clientDataJSON: toBase64Url(aar.clientDataJSON),
+      signature: toBase64Url(aar.signature),
+      userHandle: aar.userHandle ? toBase64Url(aar.userHandle) : "",
+    },
+    type: pubKeyCred.type,
+  };
+
+  return req;
 };
 
 export default function SignIn() {
@@ -27,13 +73,56 @@ export default function SignIn() {
     const userId = data.get('userId');
     const password = data.get('password');
 
-    const res = await client.Post("/signin", {userId, password});
-    const signInResponse: SignInResponse = await res.json();
+    const res: SignInResponse = await client.Post("/signin", {userId, password})
+                                              .then(res => res.json());
 
-    setToken(signInResponse.token);
+    setToken(res.token);
 
     navigate("/");
   };
+
+  const signInWithPasskey = React.useCallback(async () => {
+    const res: StartSingInWithPasskeyResponse = await client.Post("/signin/passkey/start").then(res => res.json());
+  
+    const options: CredentialRequestOptions = {
+      publicKey: {
+        challenge: toArrayBuffer(res.publicKey.challenge),
+        rpId: res.publicKey.rpId,
+        timeout: res.publicKey.timeout,
+        userVerification: res.publicKey.userVerification,
+        // not specify allowCredential to use auto fill
+      },
+      mediation: 'conditional',
+    }
+  
+    const cred = await navigator.credentials.get(options);
+    if (!cred) {
+      return;
+    }
+  
+    const req = credentialToSignInWithPasskeyRequest(cred);
+  
+    const signInRes: SignInWithPasskeyResponse = await client.Post("/signin/passkey", req).then(res => res.json());
+    
+    console.log(signInRes);
+    if (signInRes.token) {
+      setToken(signInRes.token);
+    }
+  }, [setToken]);
+  
+  const executeSignInWithPasskey = React.useCallback(async () => {
+    if (PublicKeyCredential && PublicKeyCredential.isConditionalMediationAvailable) {
+      const isCMA = await PublicKeyCredential.isConditionalMediationAvailable();
+      if (isCMA) {
+        // if conditional UI is available, execute sign in with passkey
+        signInWithPasskey();
+      }
+    }
+  }, [signInWithPasskey]);
+  
+  React.useEffect(() => {
+    executeSignInWithPasskey();
+  }, [executeSignInWithPasskey]);
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -58,9 +147,8 @@ export default function SignIn() {
               id="userId"
               label="User Id"
               name="userId"
-              autoComplete="userId"
+              autoComplete="userId webauthn"
               defaultValue="sample"
-              autoFocus
             />
             <TextField
               margin="normal"
