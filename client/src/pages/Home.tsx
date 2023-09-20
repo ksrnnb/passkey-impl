@@ -98,6 +98,7 @@ export default function Home() {
     if (!cred) {
       return;
     }
+
     const pubKeyCred = cred as PublicKeyCredential;
     const response = pubKeyCred.response as AuthenticatorAttestationResponse;
     const req: RegisterPasskeyRequest = {

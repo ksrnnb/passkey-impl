@@ -2,8 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/go-webauthn/webauthn/protocol"
@@ -23,26 +21,15 @@ type signInPasskeyResponse struct {
 	Token string `json:"token"`
 }
 
+func discoverableUserHandler(rawID, userHandle []byte) (user webauthn.User, err error) {
+	userRepo := repository.Repos.UserRepository
+	return userRepo.FindById(string(userHandle))
+}
+
 func SignInPasskey(c echo.Context) error {
 	response, err := protocol.ParseCredentialRequestResponseBody(c.Request().Body)
 	if err != nil {
 		return ErrorJSON(c, http.StatusBadRequest, err.Error())
-	}
-
-	fmt.Println(response.ParsedCredential.ID)
-	credRepo := repository.Repos.CredentialRepository
-	cred, err := credRepo.FindById(response.ParsedCredential.ID)
-	if err != nil {
-		return ErrorJSON(c, http.StatusBadRequest, err.Error())
-	}
-
-	userRepo := repository.Repos.UserRepository
-	user, err := userRepo.FindById(cred.UserId)
-	if err != nil {
-		if errors.Is(err, repository.ErrRecordNotFound) {
-			return ErrorJSON(c, http.StatusBadRequest, "user not found")
-		}
-		return ErrorJSON(c, http.StatusInternalServerError, err.Error())
 	}
 
 	sessionString, err := kvs.Get(sessionKvsKey(response.Response.CollectedClientData.Challenge))
@@ -60,12 +47,12 @@ func SignInPasskey(c echo.Context) error {
 		return ErrorJSON(c, http.StatusInternalServerError, "unexpected error")
 	}
 
-	_, err = w.ValidateLogin(user, session, response)
+	_, err = w.ValidateDiscoverableLogin(discoverableUserHandler, session, response)
 	if err != nil {
 		return ErrorJSON(c, http.StatusBadRequest, err.Error())
 	}
 
-	token, err := jwt.New(user.Id)
+	token, err := jwt.New(string(response.Response.UserHandle))
 	if err != nil {
 		return ErrorJSON(c, http.StatusInternalServerError, "jwt generation error")
 	}

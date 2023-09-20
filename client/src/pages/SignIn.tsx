@@ -41,7 +41,7 @@ type SignInWithPasskeyRequest = {
 };
 
 type SignInWithPasskeyResponse = {
-  token: string;
+  token?: string;
 }
 
 const credentialToSignInWithPasskeyRequest = (cred: Credential): SignInWithPasskeyRequest => {
@@ -104,7 +104,6 @@ export default function SignIn() {
   
     const signInRes: SignInWithPasskeyResponse = await client.Post("/signin/passkey", req).then(res => res.json());
     
-    console.log(signInRes);
     if (signInRes.token) {
       setToken(signInRes.token);
     }
