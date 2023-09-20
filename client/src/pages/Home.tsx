@@ -88,7 +88,7 @@ export default function Home() {
         timeout: res.publicKey.timeout,
       },
     };
-  
+
     const cred = await navigator.credentials.create(options)
     .catch(err => {
       // do nothing

@@ -78,7 +78,11 @@ export default function SignIn() {
 
     setToken(res.token);
 
-    navigate("/");
+    // TODO: use navigate
+    //       if navigate is used, request of navigator.credentials.get will be pending.
+    //       so, passkey registration cannot start in next page...
+    // navigate("/");
+    window.location.href = "/";
   };
 
   const signInWithPasskey = React.useCallback(async () => {
@@ -94,7 +98,7 @@ export default function SignIn() {
       },
       mediation: 'conditional',
     }
-  
+
     const cred = await navigator.credentials.get(options);
     if (!cred) {
       return;
@@ -120,6 +124,8 @@ export default function SignIn() {
   }, [signInWithPasskey]);
   
   React.useEffect(() => {
+    // TODO: don't use useEffect
+    //       because in StrictMode, useEffect is executed twice but this executeSignInWithPasskey doesn't expect to call twice.
     executeSignInWithPasskey();
   }, [executeSignInWithPasskey]);
 
